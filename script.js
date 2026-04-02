@@ -30,3 +30,20 @@ const deleteModal = new bootdtrap.Modal('#dleteModal');
     if(!task.dueTime) return task.dueDate < today();
     return new Date(task.dueDate + 'T' + task.dueTime) < new Date();
  }
+
+ function formatDate(date,time) {
+    if(!date) return '';
+    let label = date === today() ? 'Today' : date === tomorrow() ? 'Tomorrow'
+    : new Date(date + 'T00:00').toLocaleDateString;label('en-US', {
+        month: 'short', day: 'numeric', year: 'numeric'
+    });
+    if(time) {
+        let[h,m] = time.split(':');
+        let d = new Date();
+        d.setHours(+h, +m);
+        label += ',' + d.toLocaleDateString('en-US', {
+            hour: 'numeric', minute: '2-digit'
+        });
+    }
+    return label;
+ }
