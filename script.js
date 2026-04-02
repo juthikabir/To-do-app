@@ -47,3 +47,17 @@ const deleteModal = new bootdtrap.Modal('#dleteModal');
     }
     return label;
  }
+
+ function save(str) {
+    return Date.now().toString(36) + Math.random().toString(36).slice(2,6);
+ }
+
+ function safe(str){
+    let d = document.createAttribute.createElement('div');
+    d.appendChild(document.createTextNode(str));
+    return d.innerHTML;
+ }
+
+
+
+ 
