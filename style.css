@@ -630,3 +630,147 @@ html,body {
     cursor: pointer;
     transition: background 0.18s ease, color 0.18s ease;
 }
+
+.btn-ghost:hover {
+    background: #f0efee;
+    color: #1f1f1f;
+}
+
+.btn-primary-app {
+    padding: 8px 18px;
+    background: #2564cf;
+    border: none;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #ffffff;
+    cursor: pointer;
+    transition: background 0.18s ease, transform 0.18s ease;
+    box-shadow: 0 2px 8px rgb(37, 100, 207, 0.25);
+}
+
+.btn-primary-app:hover {
+    background: #1a4fa8;
+}
+
+.btn-primary-app:active {
+    transform: scale(0.98);
+}
+
+.btn-danger-app {
+    padding: 8px 18px;
+    background: #d13438;
+    border: none;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #ffffff;
+    cursor: pointer;
+    transition: background 0.18s ease;
+}
+
+.btn-danger-app:hover {
+    background: #a82a2d;
+}
+
+/* Delete Modal Style */
+.del-icon-ring {
+    width: 60px;
+    height: 60px;
+    background: #fde7e9;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 26px;
+    color: #d13438;
+    margin: 0 auto 12px;
+}
+
+.del-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: #1f1f1f;
+    margin-bottom: 4px;
+}
+
+.del-sub {
+    font-size: 13px;
+    color: #a19f9d;
+}
+
+/* Toast */
+.toast-wrap {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%);  /* moves element of its own width to the left */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+/* --- */ pointer-events: none;
+}
+
+.toast-msg {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: #323130;
+    color: #ffffff;
+    padding: 10px 18px;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 500;
+    box-shadow: 0 4px 16px rgb(0, 0, 0, 0.10);
+    white-space: nowrap;
+}
+ .toast-msg.t-success {
+    background: #107c10;
+ }
+
+ .toast-msg.t-error {
+    background: #d13438;
+ }
+
+ /* responsive */
+ @media (max-width: 991px) {
+    .sidebar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        transform: translateX(-100%);
+        box-shadow: 0 8px 32px rgb(0, 0, 0, 0.13);
+}
+ }
+
+ .sidebar.open {
+    transform: translateX(0);
+}
+
+.topbar {
+    padding: 0 16px;
+}
+
+.add-task-bar {
+    padding: 12px 16px 8px;
+}
+
+.task-list-area {
+    padding: 8px 16px 24px;
+}
+
+@media (max-width: 480px) {
+    .page-title {
+        font-size: 17px;
+    }
+
+    .task-title-text {
+        font-size: 13.5px;
+    }
+
+    .overdue-pill {
+        display: none;
+    }
+}
