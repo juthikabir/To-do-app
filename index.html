@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Taskly</title>
+  <title>To-Do-List</title>
 
   <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -29,14 +29,14 @@
     <!-- User row -->
     <div class="sidebar-user">
       <div class="user-avatar">T</div>
-      <span class="user-name">My Taskly</span>
+      <span class="user-name">My Task</span>
       <button class="icon-btn" title="Search" id="btn-search-toggle">
         <i class="bi bi-search"></i>
       </button>
     </div>
 
     <!-- Search box (hidden by default) -->
-    <div class="sidebar-search-wrap" id="search-wrap" style="display:none;">
+    <div class="sidebar-search-wrap" id="search-wrap">
       <input type="text" id="search-input" class="sidebar-search-input" placeholder="Search tasks…" />
     </div>
 
@@ -140,9 +140,6 @@
 
   </div>
 </div>
-
-<!--Sidebar backdrop (mobile)-->
-<div class="sidebar-backdrop" id="sidebar-backdrop"></div>
 
 <!--ADD / EDIT MODAL -->
 <div class="modal fade" id="taskModal" tabindex="-1" aria-hidden="true">
