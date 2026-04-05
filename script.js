@@ -1,63 +1,48 @@
-let tasks = JSON.parse(localStorage.getItem('task_k')) || [];
-let activeFilter = 'all';
-let activeSort = 'create-desc';   //sort by created date
-let searchText = '';
+let tasks = JSON.parse(localStorage.getItem(task)) || [];
+let activeFilter = "all";
+let activeSort = "create-desc";
+let searchText = "";
 let deleteId = null;
 
-const taskMoodal = new bootstrap.Modal('#taskModal');
-const deleteModal = new bootdtrap.Modal('#dleteModal');
+const taskModal = new bootstrap.Modal('#taskModal');
+const deleteModal = new bootstrap.Modal('#deleteModal');
 
-//date helpers
- function today() {
-    return new Date().toISOString().slice(0,10);
- }
+//Date Helpers
 
- function tomorrow() {
-    let d = new Date();
-    d.setDate(d.getDate() + 1);
-    return d.toISOString().slice(0, 10);
- }
-
- function weekEnd() {
-    let d = new Date();
-    let diff = d.getDay() === 0 ? 6 : 7 - d.getDay();
-    d.setDate(d.getDate() + diff);
-    return d.toISOString().slice(0,10);
- }
-
- function isOverdue(task) {  // It takes task object
-    if(!task.dueDate || task.completed) return false;
-    if(!task.dueTime) return task.dueDate < today();
-    return new Date(task.dueDate + 'T' + task.dueTime) < new Date();
- }
-
- function formatDate(date,time) {
-    if(!date) return '';
-    let label = date === today() ? 'Today' : date === tomorrow() ? 'Tomorrow'
-    : new Date(date + 'T00:00').toLocaleDateString;label('en-US', {
-        month: 'short', day: 'numeric', year: 'numeric'
-    });
-    if(time) {
-        let[h,m] = time.split(':');
-        let d = new Date();
-        d.setHours(+h, +m);
-        label += ',' + d.toLocaleDateString('en-US', {
-            hour: 'numeric', minute: '2-digit'
-        });
+class DateHelper {
+    static getDate(offset = 0) {
+        const d = new Date();
+        d.setDate(d.getDate() + offset);
+        return d.toDateString().slice(0,10);
     }
-    return label;
- }
 
- function save(str) {
-    return Date.now().toString(36) + Math.random().toString(36).slice(2,6);
- }
+    static weekEnd() {
+        const d = new Date();
+        const diff = d.getDay() == 0 ? 6 : 7-d.getDay();
+        d.setDate(d.getDate() + diff);
+        return d.toISOString().slice(0,10);
+    }
 
- function safe(str){
-    let d = document.createAttribute.createElement('div');
-    d.appendChild(document.createTextNode(str));
-    return d.innerHTML;
- }
-
-
-
- 
+    static format(date,time) {
+        if(!date) return "";
+        let label;
+        if(date === DateHelper.getDate()) {
+            label = "Today";
+        }else if(date === DateHelper.getDate(1)) {
+            label = "Tomorrow"
+        }else {
+            label = new Date(date + "T00:00").toLocaleDateString("en-US", {
+                month: "short", day: "number", year: "numeric",
+            });
+        }
+        if(time){
+            const[h,m] = time.split(":");
+            const d = new Date();
+            d.setHours(+h, +m);
+            label += "," + d.toLocaleDateString("en-US", {
+                hour: "numeric", minute: "2-digit"
+            });
+        }
+        return label;
+    }
+}
