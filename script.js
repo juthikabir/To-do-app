@@ -1,13 +1,4 @@
-let tasks = JSON.parse(localStorage.getItem("task")) || [];
-let activeFilter = "all";
-let activeSort = "create-desc";
-let searchText = "";
-let deleteId = null;
-
-const taskModal = new bootstrap.Modal("#taskModal");
-const deleteModal = new bootstrap.Modal("#deleteModal");
-
-//Date Helpers
+//DateHelper
 
 class DateHelper {
   static getDate(offset = 0) {
@@ -16,9 +7,17 @@ class DateHelper {
     return d.toDateString().slice(0, 10);
   }
 
+  static today() {
+    return DateHelper.getDate(0);
+  }
+
+  static tomorrow() {
+    return DateHelper.getDate(1);
+  }
+
   static weekEnd() {
     const d = new Date();
-    const diff = d.getDay() == 0 ? 6 : 7 - d.getDay();
+    const diff = d.getDay() === 0 ? 6 : 7 - d.getDay();
     d.setDate(d.getDate() + diff);
     return d.toISOString().slice(0, 10);
   }
@@ -26,14 +25,14 @@ class DateHelper {
   static format(date, time) {
     if (!date) return "";
     let label;
-    if (date === DateHelper.getDate()) {
+    if (date === DateHelper.today()) {
       label = "Today";
-    } else if (date === DateHelper.getDate(1)) {
+    } else if (date === DateHelper.tomorrow()) {
       label = "Tomorrow";
     } else {
       label = new Date(date + "T00:00").toLocaleDateString("en-US", {
         month: "short",
-        day: "number",
+        day: "numeric",
         year: "numeric",
       });
     }
@@ -42,8 +41,8 @@ class DateHelper {
       const d = new Date();
       d.setHours(+h, +m);
       label +=
-        "," +
-        d.toLocaleDateString("en-US", {
+        ", " +
+        d.toLocaleTimeString("en-US", {
           hour: "numeric",
           minute: "2-digit",
         });
@@ -52,7 +51,8 @@ class DateHelper {
   }
 }
 
-//Toast
+//Toast 
+
 class Toast {
   static show(msg) {
     const toast = document.createElement("div");
@@ -62,7 +62,9 @@ class Toast {
     setTimeout(() => toast.remove(), 2800);
   }
 }
-//Task Store
+
+//TaskStore 
+
 class TaskStore {
   constructor() {
     this.tasks = JSON.parse(localStorage.getItem("task")) || [];
@@ -129,7 +131,7 @@ class TaskStore {
     return copy;
   }
 
-  toggle(id) {  //complete/undo task
+  toggle(id) {
     const task = this.findById(id);
     if (!task) return null;
     task.completed = !task.completed;
@@ -138,7 +140,8 @@ class TaskStore {
   }
 }
 
-//Overdue check
+//OverdueChecker 
+
 class OverdueChecker {
   static isOverdue(task) {
     if (!task.dueDate || task.completed) return false;
@@ -147,7 +150,8 @@ class OverdueChecker {
   }
 }
 
-//TaskFilter
+//TaskFilter 
+
 class TaskFilter {
   constructor() {
     this.activeFilter = "all";
@@ -179,7 +183,9 @@ class TaskFilter {
       passesFilter = OverdueChecker.isOverdue(task);
 
     const passesSearch =
-      !this.searchText || task.title.toLowerCase().includes(this.searchText.toLowerCase());
+      !this.searchText ||
+      task.title.toLowerCase().includes(this.searchText.toLowerCase());
+
     return passesFilter && passesSearch;
   }
 
@@ -197,7 +203,8 @@ class TaskFilter {
   }
 }
 
-//TaskSorter
+//TaskSorter 
+
 class TaskSorter {
   constructor() {
     this.activeSort = "created-desc";
@@ -235,7 +242,8 @@ class TaskSorter {
   }
 }
 
-//CounterUpdater
+//CounterUpdater 
+
 class CounterUpdater {
   update(tasks) {
     const t = DateHelper.today();
@@ -261,11 +269,12 @@ class CounterUpdater {
     ).length;
     const pill = document.querySelector("#overdue-pill");
     pill.style.display = overdueCount > 0 ? "inline-flex" : "none";
-    document.querySelector("#chip-overdue-count").textContent = overdueCount;
+    document.querySelector("#chip-overdue-count").textContent = overdueCount;  //shows the overdue tasks inside the UI badge
   }
 }
- 
-// Taskrender
+
+//TaskRenderer
+
 class TaskRenderer {
   constructor(store, filter, sorter, counter) {
     this.store = store;
@@ -283,7 +292,7 @@ class TaskRenderer {
     const list = this.sorter.sort(tasks.filter((t) => this.filter.matches(t)));
 
     const container = document.querySelector("#task-list");
-    container.innerHTML = "";
+    container.innerHTML = ""; // removes all previous tasks from UI
 
     const emptyState = document.querySelector("#empty-state");
     if (list.length === 0) {
@@ -294,9 +303,9 @@ class TaskRenderer {
 
     const template = document.querySelector("#task-template");
 
-    list.forEach((task) => {
+    list.forEach((task) => { //create UI element
       const overdue = OverdueChecker.isOverdue(task);
-      const dueLabel = DateHelper.format(task.dueDate, task.dueTime);
+      const dueLabel = DateHelper.format(task.dueDate, task.dueTime); //format date string
 
       const chipClass = task.completed
         ? "chip-done"
@@ -312,15 +321,18 @@ class TaskRenderer {
       item.classList.toggle("is-completed", task.completed);
       item.dataset.id = task.id;
 
+      //Fill checkbox & title
       item.querySelector(".task-check").checked = task.completed;
       item.querySelector(".task-title-text").textContent = task.title;
 
+      //Sow description
       const descEl = item.querySelector(".task-desc-text");
       if (task.description) {
         descEl.textContent = task.description;
         descEl.style.display = "";
       }
 
+      //show due date chip
       const dueChip = item.querySelector(".due-chip");
       if (dueLabel) {
         dueChip.className = `chip ${chipClass} due-chip`;
@@ -328,11 +340,12 @@ class TaskRenderer {
         dueChip.style.display = "";
       }
 
+      //show done badge
       if (task.completed) {
         item.querySelector(".done-chip").style.display = "";
       }
 
-      // Events — bound here, trigger app-level actions via callbacks
+      // checkbox toggle
       item.querySelector(".task-check").addEventListener("change", function () {
         const updated = app.store.toggle(task.id);
         app.renderer.render();
@@ -347,11 +360,262 @@ class TaskRenderer {
         app.renderer.render();
         Toast.show("Task duplicated");
       });
-      item
-        .querySelector(".del")
-        .addEventListener("click", () => app.deleteModal.prompt(task.id));
+      
+      //delete button
+      item.querySelector(".del").addEventListener("click", () => app.deleteModal.prompt(task.id));
 
-      container.appendChild(item);
+      container.appendChild(item);  //add to UI
     });
   }
 }
+
+//TaskModal 
+
+class TaskModal {
+  constructor(store, renderer) {
+    this.store = store;
+    this.renderer = renderer;
+    this.modal = new bootstrap.Modal("#taskModal");
+    this._bindSave();  //setup modals and connect buttons
+  }
+
+  _bindSave() {  //this runs once when modal is created
+    document
+      .querySelector("#btn-save-task")
+      .addEventListener("click", () => this.save());
+    document.querySelector("#modal-title").addEventListener("keydown", (e) => {
+      if (e.key === "Enter") this.save();
+    });
+  }
+
+  //optional text for title
+  openCreate(prefill = "") {
+    document.querySelector("#modal-task-id").value = "";
+    document.querySelector("#modal-title").value = prefill;
+    document.querySelector("#modal-desc").value = "";
+    document.querySelector("#modal-due-date").value = "";
+    document.querySelector("#modal-due-time").value = "";
+    document.querySelector("#modal-heading").textContent = "Add Task";
+    document.querySelector("#title-error").style.display = "none";
+    this.modal.show();
+  }
+
+  openEdit(id) {
+    const task = this.store.findById(id);
+    document.querySelector("#modal-task-id").value = task.id;
+    document.querySelector("#modal-title").value = task.title;
+    document.querySelector("#modal-desc").value = task.description || "";
+    document.querySelector("#modal-due-date").value = task.dueDate || "";
+    document.querySelector("#modal-due-time").value = task.dueTime || "";
+    document.querySelector("#modal-heading").textContent = "Edit Task";
+    document.querySelector("#title-error").style.display = "none";
+    this.modal.show();
+  }
+
+  save() {
+    const titleInput = document.querySelector("#modal-title");
+    const title = titleInput.value.trim();
+
+    if (!title) {
+      titleInput.classList.add("field-error-state");
+      document.querySelector("#title-error").style.display = "block";
+      titleInput.focus();
+      return;
+    }
+
+    titleInput.classList.remove("field-error-state");
+    document.querySelector("#title-error").style.display = "none";
+
+    const id = document.querySelector("#modal-task-id").value;
+    const data = {
+      title,
+      description: document.querySelector("#modal-desc").value.trim(),
+      dueDate: document.querySelector("#modal-due-date").value,
+      dueTime: document.querySelector("#modal-due-time").value,
+    };
+
+    if (id) {
+      this.store.update(id, data);
+      Toast.show("Task updated");
+    } else {
+      this.store.add(data);
+      Toast.show("Task added");
+    }
+
+    this.renderer.render();
+    this.modal.hide();
+  }
+}
+
+//DeleteModal 
+
+class DeleteModal {
+  constructor(store, renderer) {
+    this.store = store;
+    this.renderer = renderer;
+    this.modal = new bootstrap.Modal("#deleteModal");
+    this.deleteId = null;
+    this._bindConfirm();
+  }
+
+  _bindConfirm() {
+    document
+      .querySelector("#btn-confirm-delete")
+      .addEventListener("click", () => {
+        if (!this.deleteId) return;
+        this.store.remove(this.deleteId);
+        this.deleteId = null;
+        this.renderer.render();
+        Toast.show("Task deleted");
+        this.modal.hide();
+      });
+  }
+
+  prompt(id) {
+    this.deleteId = id;
+    this.modal.show();
+  }
+}
+
+//SidebarController 
+
+class SidebarController {
+  constructor(renderer, filter) {
+    this.renderer = renderer;
+    this.filter = filter;
+    this._bindEvents();
+  }
+
+  _bindEvents() {
+    document.querySelectorAll(".nav-item").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        document
+          .querySelectorAll(".nav-item")
+          .forEach((b) => b.classList.remove("active"));
+        btn.classList.add("active");
+        this.filter.setFilter(btn.dataset.filter);
+        this.renderer.render();
+        if (window.innerWidth < 992) this._close();
+      });
+    });
+
+    document.querySelector("#sidebar-toggle").addEventListener("click", () => {
+      document.querySelector("#sidebar").classList.toggle("open");
+      document.querySelector("#sidebar-backdrop").classList.toggle("open");
+    });
+
+    document
+      .querySelector("#sidebar-backdrop")
+      .addEventListener("click", () => this._close());
+  }
+
+  _close() {
+    document.querySelector("#sidebar").classList.remove("open");
+    document.querySelector("#sidebar-backdrop").classList.remove("open");
+  }
+}
+
+//SearchController 
+
+class SearchController {
+  constructor(renderer, filter) {
+    this.renderer = renderer;
+    this.filter = filter;
+    this._bindEvents();
+  }
+
+  _bindEvents() {
+    document
+      .querySelector("#btn-search-toggle")
+      .addEventListener("click", () => {
+        const wrap = document.querySelector("#search-wrap");
+        const isHidden = wrap.style.display === "none";
+        wrap.style.display = isHidden ? "block" : "none";
+        if (isHidden) {
+          document.querySelector("#search-input").focus();
+        } else {
+          this.filter.setSearch("");
+          document.querySelector("#search-input").value = "";
+          this.renderer.render();
+        }
+      });
+
+    document.querySelector("#search-input").addEventListener("input", (e) => {
+      this.filter.setSearch(e.target.value);
+      this.renderer.render();
+    });
+  }
+}
+
+//SortController 
+
+class SortController {
+  constructor(renderer, sorter) {
+    this.renderer = renderer;
+    this.sorter = sorter;
+    this._bindEvents();
+  }
+
+  _bindEvents() {
+    document.querySelector("#sort-select").addEventListener("change", (e) => {
+      this.sorter.setSort(e.target.value);
+      this.renderer.render();
+    });
+  }
+}
+
+//QuickAddController 
+
+class QuickAddController {
+  constructor(taskModal) {
+    this.taskModal = taskModal;
+    this._bindEvents();
+  }
+
+  _bindEvents() {
+    document.querySelector("#btn-open-modal").addEventListener("click", () => {
+      const input = document.querySelector("#quick-add-input");
+      this.taskModal.openCreate(input.value.trim());
+      input.value = "";
+    });
+
+    document
+      .querySelector("#quick-add-input")
+      .addEventListener("keydown", function (e) {
+        if (e.key === "Enter" && this.value.trim()) {
+          app.taskModal.openCreate(this.value.trim());
+          this.value = "";
+        }
+      });
+  }
+}
+
+//App 
+
+class App {
+  constructor() {
+    this.store = new TaskStore();
+    this.filter = new TaskFilter();
+    this.sorter = new TaskSorter();
+    this.counter = new CounterUpdater();
+    this.renderer = new TaskRenderer(
+      this.store,
+      this.filter,
+      this.sorter,
+      this.counter,
+    );
+    this.taskModal = new TaskModal(this.store, this.renderer);
+    this.deleteModal = new DeleteModal(this.store, this.renderer);
+
+    new SidebarController(this.renderer, this.filter);
+    new SearchController(this.renderer, this.filter);
+    new SortController(this.renderer, this.sorter);
+    new QuickAddController(this.taskModal);
+
+    this.renderer.render();
+  }
+}
+
+//Init 
+
+const app = new App();
